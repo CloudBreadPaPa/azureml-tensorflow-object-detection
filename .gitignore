@@ -24,6 +24,15 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+aml-subprocess-test.ipynb
+aml-tf-example.ipynb
+aml-tf-od-tfrecord.ipynb
+log.txt
+logging.yaml
+replace-pipeline-string.ipynb
+.azureml
+aml_config
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
