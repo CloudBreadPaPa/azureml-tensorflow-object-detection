@@ -9,10 +9,14 @@ This repo is building Tensorflow Object Detection on AzureML - Azure Machine Lea
 1. Build tensorflow object detection docker image
 ```
 docker build --tag <ACR_NAME>.azurecr.io/dw-tf-od:v1 .
+or
+docker build --tag <YOURID>/dw-tf-od:v8 .
 ```
 2. Push to Azure Container Registry
 ```
 docker push <ACR_NAME>.azurecr.io/dw-tf-od:v1
+or
+docker push <YOURID>/dw-tf-od:v8
 ```
 3. Run [aml-tf-od.ipynb](aml-tf-od.ipynb) notebook and follow the instruction
 
