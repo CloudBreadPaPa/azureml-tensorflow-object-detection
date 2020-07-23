@@ -22,6 +22,21 @@ from os import listdir
 from os.path import isfile, join
 from shutil import copyfile
 from PIL import Image
+
+os.chdir('/tensorflow/models/research')
+print('pythonpath info : ', sys.path)
+
+if "/tensorflow/models/research" not in sys.path:
+    sys.path.append("/tensorflow/models/research")
+if "/tensorflow/models/research/slim" not in sys.path:
+    sys.path.append("/tensorflow/models/research/slim")
+print('path added!')
+print('pythonpath info : ', sys.path)
+
+print('system python version : ', sys.version)
+print('current dir : ', os.listdir())
+print('sys ver : ', sys.executable)
+
 from object_detection.utils import dataset_util
 from object_detection.utils import label_map_util
 from collections import namedtuple, OrderedDict
@@ -45,9 +60,13 @@ args = parser.parse_args()
 
 mount_data_folder = args.data_folder
 
+print('mounted dir : ', mount_data_folder)
+print('mount dir list : ', os.listdir(mount_data_folder))
+
+
 # tf-record convert global values
 tf_root_folder = '/tensorflow/models/research'
-zip_image_path = os.path.join(mount_data_folder, 'work', 'sample-images.zip')
+zip_image_path = os.path.join(mount_data_folder, 'tfdata', 'work', 'sample-images.zip')
 extract_image_path = '/tensorflow/models/research/tfdata'
 pascal_image_path = '/tensorflow/models/research/tfdata'
 file_split_ratio = 0.80
@@ -57,7 +76,7 @@ label_map_path = os.path.join(extract_image_path, 'pascal_label_map.pbtxt')
 
 # replace config global params
 json_replace_pipeline_file_path = os.path.join(extract_image_path, 'pipeline_replace.json')
-tf_pipeline_config_template_file_path = os.path.join(mount_data_folder, 'templates', 'pipeline_configs', 'pipeline.config')
+tf_pipeline_config_template_file_path = os.path.join(mount_data_folder, 'tfdata', 'templates', 'pipeline_configs', 'pipeline.config')
 tf_pipeline_config_work_file_path = os.path.join(extract_image_path, 'pipeline.config')
 tf_checkpoint_dir = os.path.join(extract_image_path, 'checkpoint')
 
@@ -230,6 +249,12 @@ for key in obj:
     inplace_change(tf_pipeline_config_work_file_path, key, val)
     print("%s : %s" % (key, val))
 
+    
+#build slim
+res = subprocess.Popen(['python','setup.py', 'build'], stdout=subprocess.PIPE, cwd=os.path.join(tf_root_folder, 'slim'))
+res = subprocess.Popen(['python','setup.py', 'install'], stdout=subprocess.PIPE, cwd=os.path.join(tf_root_folder, 'slim'))
+print(res.communicate())
+
 #subprocess train.py
 res = subprocess.Popen(['python','object_detection/legacy/train.py', '--logtostderr', '--pipeline_config_path=' + tf_pipeline_config_work_file_path, '--train_dir=' + tf_checkpoint_dir], stdout=subprocess.PIPE, cwd=tf_root_folder)
 print(res.communicate())
@@ -243,7 +268,8 @@ print(res.communicate())
 logging.info('eval done!')
 
 #subprocess export_inference_graph.py
-res = subprocess.Popen(['python','object_detection/export_inference_graph.py', '--input_type=image_tensor', '--pipeline_config_path=' + tf_pipeline_config_work_file_path, '--trained_checkpoint_prefix=' + os.path.join(tf_checkpoint_dir, 'model.ckpt-10'), '--output_directory=' + os.path.join(tf_checkpoint_dir, 'frozen_model')], stdout=subprocess.PIPE, cwd=tf_root_folder)
+logging.info('Start frozen - export inference graph!')
+res = subprocess.Popen(['python','object_detection/export_inference_graph.py', '--input_type image_tensor', '--pipeline_config_path=' + tf_pipeline_config_work_file_path, '--trained_checkpoint_prefix=' + os.path.join(tf_checkpoint_dir, 'model.ckpt-10'), '--output_directory=' + os.path.join(tf_checkpoint_dir, 'frozen_model')], stdout=subprocess.PIPE, cwd=tf_root_folder)
 print(res.communicate())
 
 logging.info('frozen done!')

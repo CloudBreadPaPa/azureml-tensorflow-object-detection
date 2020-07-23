@@ -13,6 +13,7 @@ scipy
 sklearn
 pyyaml
 argparse
-tensorflow-gpu==1.12.0
-#tensorflow==1.12.0
-
+azureml-sdk
+azureml-defaults
+#tensorflow-gpu==1.12.0
+tensorflow==1.12.0

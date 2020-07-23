@@ -1,11 +1,24 @@
-FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
+#FROM nvidia/cuda:9.0-cudnn7-runtime-ubuntu16.04
+#FROM mcr.microsoft.com/azureml/o16n-sample-user-base/ubuntu-miniconda:latest
+
+#https://github.com/Azure/MachineLearningNotebooks/blob/master/how-to-use-azureml/training-with-deep-learning/distributed-cntk-with-custom-docker/distributed-cntk-with-custom-docker.ipynb
+#GPU base image - microsoft/mmlspark:gpu-0.12
+#CPU base image - microsoft/mmlspark:0.12
+FROM microsoft/mmlspark:gpu-0.12
+
+
 # Taken from https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/tools/docker/Dockerfile.gpu
 # https://raw.githubusercontent.com/tensorflow/models/master/research/object_detection/dockerfiles/android/Dockerfile
 LABEL maintainer="dw-aml-tf-od"
 
 ENV CI_BUILD_PYTHON python3
 
+
+USER root  
+# error w/ non-root - mmlspark docker base image issue
 RUN mkdir -p /tensorflow
+#RUN chown newuser /tensorflow
+
 
 # Pick up some TF dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -40,7 +53,9 @@ RUN pip --no-cache-dir install -r /requirements.txt
 WORKDIR /tensorflow
 
 # clone the models repo
-RUN git clone https://github.com/tensorflow/models.git
+# RUN git clone https://github.com/tensorflow/models.git
+# change to clone specific version
+RUN git clone --single-branch --branch r1.13.0 https://github.com/tensorflow/models.git
 
 WORKDIR /tensorflow/models/research
 
@@ -71,6 +86,7 @@ ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 
 # Add work dir
 RUN mkdir -p /tensorflow/models/research/tfdata/checkpoint
+RUN mkdir -p /tensorflow/models/research/tfdata/checkpoint/frozen_model
 
 # replace eval.py process error  
 RUN sed -i -e 's/category_name = unicode(category_name/category_name = str(category_name/g' object_detection/utils/object_detection_evaluation.py
