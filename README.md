@@ -1,3 +1,6 @@
+# DO NOT USE THIS PROJECT AS PRODUCTION
+This project built for tensorflow object detection API training test purpose for AzureML. Tensorflow object detection API running model could not be controlled by AzureML during the training. You must not use this project as production and consider change it Keras or PyTorch object detection.
+
 # Tensorflow Object Detection on AzureML project
 This repo is building Tensorflow Object Detection on AzureML - Azure Machine Learning Service. This repo include Python based AzureML development code.
 
